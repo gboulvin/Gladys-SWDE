@@ -1,42 +1,58 @@
 // -----------------------------------------------------------------------------
-// Integration configuration.
+// SWDE integration configuration.
 //
-// The configuration is filled in by the user in Gladys, from the `config_schema`
-// declared in `gladys-assistant-integration.json`. The SDK fetches it for you
-// (`gladys.getConfig()`) and notifies you of every change through
-// `gladys.onConfigUpdated()`.
-//
-// This module only provides defaults and normalizes the received object, so the
-// rest of the code never has to deal with `undefined`.
+// Config values come from the Gladys Configuration screen. Credentials are
+// optional because the official SWDE consumer portal does not document a public
+// API; users can either configure an authorised JSON endpoint or enter their
+// latest meter values manually.
 // -----------------------------------------------------------------------------
 
-// Defaults: they MUST stay consistent with the `default` values declared in the
-// `config_schema` of the manifest.
 export const DEFAULT_CONFIG = {
-  latitude: 48.8566, // Paris
-  longitude: 2.3522,
-  unit: 'celsius', // 'celsius' | 'fahrenheit'
-  poll_frequency: 300, // seconds, how often sensors are refreshed
-  // Reserved key (NOT in config_schema): because the manifest declares both
-  // 'local' and 'cloud' in its `transports` field, Gladys shows a standard
-  // "Prefer the local connection" toggle and sends the user's choice here.
-  // Read-only for the integration; defaults to true.
-  GLADYS_PREFER_LOCAL: true,
+  source_type: 'manual', // 'manual' | 'api'
+  meter_id: 'principal',
+  meter_label: 'Compteur SWDE',
+  poll_frequency: 3600,
+  api_url: '',
+  api_token: '',
+  manual_total_m3: 0,
+  manual_period_m3: 0,
+  manual_period_days: 30,
 };
 
+function finiteNonNegativeNumber(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : fallback;
+}
+
 /**
- * Merge the user config with the defaults.
- * @param {Record<string, unknown>} raw config returned by the SDK
+ * Normalize the configuration received from Gladys.
+ * @param {Record<string, unknown>} raw
  */
 export function normalizeConfig(raw = {}) {
+  const sourceType = raw.source_type === 'api' ? 'api' : 'manual';
+  const meterId = String(raw.meter_id ?? DEFAULT_CONFIG.meter_id).trim();
+  const meterLabel = String(raw.meter_label ?? DEFAULT_CONFIG.meter_label).trim();
+  const pollFrequency = finiteNonNegativeNumber(raw.poll_frequency, DEFAULT_CONFIG.poll_frequency);
+
   return {
     ...DEFAULT_CONFIG,
     ...raw,
-    // Force the types: config may arrive as strings from a form.
-    latitude: Number(raw.latitude ?? DEFAULT_CONFIG.latitude),
-    longitude: Number(raw.longitude ?? DEFAULT_CONFIG.longitude),
-    poll_frequency: Number(raw.poll_frequency ?? DEFAULT_CONFIG.poll_frequency),
-    // The preference is a boolean; anything but an explicit false means true.
-    GLADYS_PREFER_LOCAL: raw.GLADYS_PREFER_LOCAL !== false,
+    source_type: sourceType,
+    meter_id: meterId || DEFAULT_CONFIG.meter_id,
+    meter_label: meterLabel || DEFAULT_CONFIG.meter_label,
+    poll_frequency: Math.min(Math.max(Math.round(pollFrequency), 300), 86_400),
+    api_url: String(raw.api_url ?? DEFAULT_CONFIG.api_url).trim(),
+    api_token: String(raw.api_token ?? DEFAULT_CONFIG.api_token).trim(),
+    manual_total_m3: finiteNonNegativeNumber(raw.manual_total_m3, DEFAULT_CONFIG.manual_total_m3),
+    manual_period_m3: finiteNonNegativeNumber(
+      raw.manual_period_m3,
+      DEFAULT_CONFIG.manual_period_m3,
+    ),
+    manual_period_days: Math.max(
+      1,
+      Math.round(
+        finiteNonNegativeNumber(raw.manual_period_days, DEFAULT_CONFIG.manual_period_days),
+      ),
+    ),
   };
 }

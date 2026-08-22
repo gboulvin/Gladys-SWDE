@@ -1,102 +1,149 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "SWDE Water Consumption",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Monitor SWDE water-meter readings and consumption in Gladys from manual readings or an authorised JSON data source.",
+    "fr": "Suivez les relevés de compteur et la consommation d’eau SWDE dans Gladys, par saisie manuelle ou depuis une source JSON autorisée."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/gboulvin/gladys-swde:0.1.0",
   "gladys_version": ">=4.86.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-SWDE/main/cover.jpg",
+  "categories": ["environment"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": { "en": "SWDE consumption data", "fr": "Données de consommation SWDE" },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "The official SWDE customer portal provides consumption history after sign-in but does not document a public API. This integration never receives your SWDE password: enter readings manually or use an authorised JSON endpoint.",
+        "fr": "Le portail client officiel SWDE donne accès à l’historique après connexion, mais ne documente pas d’API publique. Cette intégration ne reçoit jamais votre mot de passe SWDE : encodez vos relevés manuellement ou utilisez un point d’accès JSON autorisé."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.swde.be/fr/voir-mon-historique-de-consommation",
+          "label": { "en": "SWDE consumption history", "fr": "Historique de consommation SWDE" }
+        },
+        {
+          "url": "https://github.com/gboulvin/Gladys-SWDE/blob/main/docs/fr.md",
+          "label": { "en": "Integration documentation", "fr": "Documentation de l’intégration" }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
-      },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
+      "key": "source_type",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
+      "label": { "en": "Data source", "fr": "Source de données" },
+      "required": true,
+      "default": "manual",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "manual",
+          "label": { "en": "Manual meter readings", "fr": "Relevés manuels du compteur" }
+        },
+        {
+          "value": "api",
+          "label": { "en": "Authorised JSON endpoint", "fr": "Point d’accès JSON autorisé" }
+        }
       ]
+    },
+    {
+      "key": "meter_id",
+      "type": "string",
+      "label": { "en": "Meter identifier", "fr": "Identifiant du compteur" },
+      "description": {
+        "en": "A stable local identifier, for example the last digits of the meter serial number. Do not enter a customer number.",
+        "fr": "Un identifiant local stable, par exemple les derniers chiffres du numéro de série du compteur. N’encodez pas de numéro de client."
+      },
+      "required": true,
+      "default": "principal"
+    },
+    {
+      "key": "meter_label",
+      "type": "string",
+      "label": { "en": "Meter name", "fr": "Nom du compteur" },
+      "required": true,
+      "default": "Compteur SWDE"
+    },
+    {
+      "key": "api_section",
+      "type": "section",
+      "label": { "en": "Authorised JSON endpoint", "fr": "Point d’accès JSON autorisé" },
+      "description": {
+        "en": "Complete these fields only when the API source is selected. The endpoint must return a JSON object with total_m3 and/or period_m3; period_days is optional.",
+        "fr": "Complétez ces champs uniquement si la source API est sélectionnée. Le point d’accès doit renvoyer un objet JSON avec total_m3 et/ou period_m3 ; period_days est facultatif."
+      }
+    },
+    {
+      "key": "api_url",
+      "type": "string",
+      "label": { "en": "JSON endpoint URL", "fr": "URL du point d’accès JSON" },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "api_token",
+      "type": "secret",
+      "label": { "en": "API bearer token", "fr": "Jeton d’accès API" },
+      "description": {
+        "en": "Optional. It is stored in Gladys as a protected secret and sent as a Bearer token.",
+        "fr": "Facultatif. Il est stocké dans Gladys comme secret protégé et envoyé comme jeton Bearer."
+      },
+      "required": false
+    },
+    {
+      "key": "manual_section",
+      "type": "section",
+      "label": { "en": "Manual readings", "fr": "Relevés manuels" },
+      "description": {
+        "en": "Use the values from your meter or SWDE history. Save after each new reading to add it to the Gladys dashboard history.",
+        "fr": "Utilisez les valeurs de votre compteur ou de l’historique SWDE. Enregistrez après chaque nouveau relevé pour l’ajouter à l’historique du tableau de bord Gladys."
+      }
+    },
+    {
+      "key": "manual_total_m3",
+      "type": "number",
+      "label": { "en": "Meter index (m³)", "fr": "Index du compteur (m³)" },
+      "required": false,
+      "default": 0,
+      "min": 0
+    },
+    {
+      "key": "manual_period_m3",
+      "type": "number",
+      "label": { "en": "Consumption for the period (m³)", "fr": "Consommation de la période (m³)" },
+      "required": false,
+      "default": 0,
+      "min": 0
+    },
+    {
+      "key": "manual_period_days",
+      "type": "number",
+      "label": { "en": "Period length (days)", "fr": "Durée de la période (jours)" },
+      "required": false,
+      "default": 30,
+      "min": 1
     },
     {
       "key": "poll_frequency",
       "type": "number",
       "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
       "description": {
-        "en": "How often sensors are polled, in seconds.",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes."
+        "en": "Used only for the API source. A moderate interval limits unnecessary requests and state history.",
+        "fr": "Utilisé uniquement pour la source API. Un intervalle modéré limite les requêtes et l’historique d’états inutiles."
       },
       "required": false,
-      "default": 300,
-      "min": 30,
-      "max": 3600
+      "default": 3600,
+      "min": 300,
+      "max": 86400
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
+      "key": "test_data_source",
+      "label": { "en": "Test the data source", "fr": "Tester la source de données" },
       "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
     }
   ]
 }

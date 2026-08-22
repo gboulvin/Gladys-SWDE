@@ -1,33 +1,53 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeConfig, DEFAULT_CONFIG } from '../src/config.js';
+import { DEFAULT_CONFIG, normalizeConfig } from '../src/config.js';
 
-test('normalizeConfig returns the defaults when called with no argument', () => {
+test('normalizeConfig returns SWDE defaults', () => {
   assert.deepEqual(normalizeConfig(), DEFAULT_CONFIG);
 });
 
-test('normalizeConfig keeps user values over the defaults', () => {
-  const config = normalizeConfig({ latitude: 45.5, longitude: -73.6, unit: 'fahrenheit' });
-  assert.equal(config.latitude, 45.5);
-  assert.equal(config.longitude, -73.6);
-  assert.equal(config.unit, 'fahrenheit');
+test('normalizeConfig accepts the authorised API source and trims text fields', () => {
+  const config = normalizeConfig({
+    source_type: 'api',
+    meter_id: '  1234  ',
+    meter_label: '  Compteur cave  ',
+    api_url: ' https://example.test/reading ',
+    api_token: ' token ',
+  });
+
+  assert.equal(config.source_type, 'api');
+  assert.equal(config.meter_id, '1234');
+  assert.equal(config.meter_label, 'Compteur cave');
+  assert.equal(config.api_url, 'https://example.test/reading');
+  assert.equal(config.api_token, 'token');
 });
 
-test('normalizeConfig coerces numeric strings coming from a form', () => {
-  const config = normalizeConfig({ latitude: '48.8', longitude: '2.3', poll_frequency: '600' });
-  assert.equal(config.latitude, 48.8);
-  assert.equal(config.longitude, 2.3);
-  assert.equal(config.poll_frequency, 600);
-  assert.equal(typeof config.poll_frequency, 'number');
+test('normalizeConfig safely coerces and bounds numeric form values', () => {
+  const config = normalizeConfig({
+    poll_frequency: '10',
+    manual_total_m3: '42.5',
+    manual_period_m3: '1.2',
+    manual_period_days: '0',
+  });
+
+  assert.equal(config.poll_frequency, 300);
+  assert.equal(config.manual_total_m3, 42.5);
+  assert.equal(config.manual_period_m3, 1.2);
+  assert.equal(config.manual_period_days, 1);
 });
 
-test('normalizeConfig falls back to the default for a missing numeric field', () => {
-  const config = normalizeConfig({ unit: 'celsius' });
+test('normalizeConfig rejects invalid source selections and negative readings', () => {
+  const config = normalizeConfig({
+    source_type: 'portal',
+    manual_total_m3: '-4',
+    manual_period_m3: 'not-a-number',
+    manual_period_days: '-12',
+    poll_frequency: 'not-a-number',
+  });
+
+  assert.equal(config.source_type, 'manual');
+  assert.equal(config.manual_total_m3, DEFAULT_CONFIG.manual_total_m3);
+  assert.equal(config.manual_period_m3, DEFAULT_CONFIG.manual_period_m3);
+  assert.equal(config.manual_period_days, DEFAULT_CONFIG.manual_period_days);
   assert.equal(config.poll_frequency, DEFAULT_CONFIG.poll_frequency);
-});
-
-test('GLADYS_PREFER_LOCAL defaults to true and only an explicit false disables it', () => {
-  assert.equal(normalizeConfig().GLADYS_PREFER_LOCAL, true);
-  assert.equal(normalizeConfig({ GLADYS_PREFER_LOCAL: true }).GLADYS_PREFER_LOCAL, true);
-  assert.equal(normalizeConfig({ GLADYS_PREFER_LOCAL: false }).GLADYS_PREFER_LOCAL, false);
 });
