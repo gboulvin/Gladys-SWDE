@@ -1,6 +1,6 @@
-# SWDE Water Consumption
+# Consommation d’eau SWDE
 
-Cette intégration externe permet d’afficher dans Gladys l’**index du compteur**, la **consommation de la période** et la **moyenne quotidienne** d’un compteur desservi par la SWDE. Chaque indicateur est historisé afin d’être utilisable dans les tableaux de bord et les graphiques Gladys.
+Cette intégration externe affiche dans Gladys l’**index du compteur**, la **consommation de la période** et la **moyenne quotidienne** d’un compteur desservi par la SWDE (Société wallonne des eaux). Chaque indicateur est historisé, présenté dans un widget de tableau de bord dédié et peut déclencher vos scènes : un nouveau relevé, ou une consommation quotidienne au-dessus de votre seuil d’alerte (fuite, robinet resté ouvert).
 
 > L’Espace client SWDE permet de consulter l’historique des consommations après authentification, mais la SWDE ne documente pas d’API publique destinée à l’automatisation. L’intégration ne collecte donc jamais de mot de passe SWDE et ne pilote pas le portail web. [1]
 
@@ -10,23 +10,25 @@ Cette intégration externe permet d’afficher dans Gladys l’**index du compte
 | Consommation de la période | m³     | Volume consommé sur la période de référence.                           |
 | Moyenne quotidienne        | L/jour | Calculée à partir de la consommation de période et du nombre de jours. |
 
+Gladys 5.1.0 ou plus récent est requis.
+
 ## Installation et ajout du compteur
 
-Installez l’intégration depuis le catalogue Gladys, puis ouvrez son onglet **Configuration**. Choisissez un identifiant local stable pour le compteur, par exemple les derniers chiffres de son numéro de série, et donnez-lui un nom lisible. N’utilisez pas votre numéro de client SWDE : il n’est ni nécessaire ni souhaitable pour l’intégration.
+Installez l’intégration depuis le catalogue Gladys, puis ouvrez son onglet **Configuration**. Choisissez un identifiant local stable pour le compteur, par exemple les derniers chiffres de son numéro de série, et donnez-lui un nom lisible. N’utilisez pas votre numéro de client SWDE : l’intégration n’en a pas besoin. L’identifiant fait partie de l’identité de l’appareil dans Gladys : le modifier plus tard crée un nouvel appareil.
 
 Après l’enregistrement, ouvrez l’onglet **Découverte** de l’intégration et ajoutez le compteur proposé. Les trois capteurs apparaissent alors sur le tableau de bord et dans l’historique des états de Gladys.
 
-## Saisie manuelle recommandée pour un compte particulier
+## Relevés manuels pour un compte particulier
 
-Sélectionnez **Relevés manuels du compteur** lorsque vous consultez votre index dans l’Espace client SWDE ou directement sur le compteur. Saisissez l’index en m³, la consommation associée à votre période de référence et le nombre de jours de cette période. Enregistrez la configuration à chaque nouveau relevé : Gladys publie alors les nouvelles valeurs et recalcule la moyenne quotidienne.
+Sélectionnez **Relevés manuels du compteur** lorsque vous consultez votre index dans l’Espace client SWDE ou directement sur le compteur. Saisissez l’index en m³, la consommation de votre période de référence et le nombre de jours de cette période. Enregistrez la configuration à chaque nouveau relevé : Gladys publie les nouvelles valeurs et recalcule la moyenne quotidienne.
 
 Cette méthode est la plus fiable pour un compte particulier car elle ne dépend d’aucune interface privée non documentée. La page officielle de la SWDE confirme que l’historique des consommations est disponible depuis l’Espace client. [1]
 
 ## Source JSON autorisée
 
-Sélectionnez **Point d’accès JSON autorisé** uniquement lorsque vous disposez d’une interface contractuelle ou explicitement documentée, par exemple un service easyCONSO, un export agréé ou votre propre passerelle. Renseignez l’URL HTTPS du point d’accès et, si nécessaire, un jeton d’accès. Le jeton est enregistré dans un champ secret Gladys et est transmis dans l’en-tête `Authorization: Bearer …`.
+Sélectionnez **Point d’accès JSON autorisé** uniquement lorsque vous disposez d’une interface contractuelle ou explicitement documentée, par exemple un service easyCONSO, un export agréé ou votre propre passerelle. Renseignez l’URL du point d’accès et, si nécessaire, un jeton d’accès. Le jeton est enregistré dans un champ secret Gladys et transmis dans l’en-tête `Authorization: Bearer …`.
 
-Le point d’accès doit répondre à une requête `GET` avec un objet JSON direct ou enveloppé dans une propriété `data`. Il doit contenir `total_m3` et/ou `period_m3`. `period_days` est facultatif mais nécessaire au calcul de la moyenne quotidienne. Les formes camelCase sont aussi acceptées.
+Le point d’accès doit répondre à une requête `GET` avec un objet JSON direct ou enveloppé dans une propriété `data`. Il doit contenir `total_m3` et/ou `period_m3` ; `period_days` est facultatif mais nécessaire au calcul de la moyenne quotidienne. Les formes camelCase (`totalM3`, `periodM3`, `periodDays`) ainsi que `index_m3` / `consumption_m3` sont aussi acceptées.
 
 ```json
 {
@@ -37,20 +39,58 @@ Le point d’accès doit répondre à une requête `GET` avec un objet JSON dire
 }
 ```
 
-| Champ         | Obligatoire                     | Règle                                                             |
-| ------------- | ------------------------------- | ----------------------------------------------------------------- |
-| `total_m3`    | Non, si `period_m3` est présent | Nombre supérieur ou égal à zéro.                                  |
-| `period_m3`   | Non, si `total_m3` est présent  | Nombre supérieur ou égal à zéro.                                  |
-| `period_days` | Non                             | Nombre strictement positif ; utilisé pour la moyenne quotidienne. |
-| `reading_at`  | Non                             | Horodatage informatif ISO 8601.                                   |
+| Champ         | Obligatoire                    | Validation                               |
+| ------------- | ------------------------------ | ---------------------------------------- |
+| `total_m3`    | Non, si `period_m3` est fourni | Nombre supérieur ou égal à zéro.         |
+| `period_m3`   | Non, si `total_m3` est fourni  | Nombre supérieur ou égal à zéro.         |
+| `period_days` | Non                            | Nombre positif, utilisé pour la moyenne. |
+| `reading_at`  | Non                            | Horodatage ISO 8601 informatif.          |
 
-L’intervalle de rafraîchissement par défaut est d’une heure. Choisissez un intervalle raisonnable : les relevés SWDE et les données de consommation n’évoluent généralement pas à la minute, et Gladys conserve l’historique des états. L’intégration évite en outre de republier une valeur inchangée pendant sa session en cours.
+## Connexion locale ou cloud
 
-## Vérification et dépannage
+L’intégration déclare les deux canaux. Le compteur affiche un badge dans Gladys :
 
-Utilisez le bouton **Tester la source de données** avant d’ajouter le compteur ou après toute modification d’URL. Le résultat confirme les valeurs reconnues sans afficher de jeton. Si le test échoue, vérifiez que l’URL répond depuis l’hôte Gladys, que le jeton est valide et que la réponse respecte le schéma ci-dessus. Consultez enfin les journaux de l’intégration ; `LOG_LEVEL=debug` augmente le niveau de détail.
+| Badge           | Quand                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------- |
+| **Local**       | Relevés manuels, ou point d’accès sur votre réseau (IP privée, `localhost`, `.local`, `.lan`). |
+| **Cloud**       | Point d’accès sur Internet (easyCONSO, service tiers…).                                        |
+| **Injoignable** | La dernière lecture de la source de données a échoué.                                          |
 
-La solution easyCONSO de la SWDE est distincte de l’Espace client général. Elle annonce notamment des relevés automatiques et un suivi en temps réel pour les compteurs intelligents, dans un cadre de service spécifique. [2]
+Le canal suit la source configurée : l’interrupteur « Préférer la connexion locale » affiché par Gladys n’a pas de choix à faire pour un compteur d’eau unique.
+
+## Intervalle de rafraîchissement
+
+Gladys interroge le compteur chaque minute et l’intégration lit la source à l’intervalle configuré (une heure par défaut, de 5 minutes à 24 heures). Les relevés d’eau nécessitent rarement une interrogation à la minute. Les valeurs inchangées ne sont pas republiées, sauf toutes les 6 heures pour que le compteur reste daté récemment.
+
+## Widget de tableau de bord
+
+Ajoutez le widget **Consommation d’eau SWDE** à un tableau de bord. Il affiche :
+
+- trois tuiles en direct : index, consommation de la période, moyenne quotidienne (en orange au-dessus du seuil d’alerte) ;
+- un graphique de la moyenne quotidienne sur le dernier mois, les 3 derniers mois (par défaut) ou la dernière année — réglage **Période du graphique** du widget ;
+- la source de données, son état, l’heure de la dernière lecture et l’état de l’alerte ;
+- un bouton **Actualiser** qui lit la source immédiatement.
+
+## Scènes
+
+### Déclencheurs
+
+| Déclencheur                          | Se déclenche quand                                                                                        | Variables                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| **Nouveau relevé du compteur d’eau** | L’index a changé depuis la lecture précédente (la première lecture après un démarrage sert de référence). | `total_m3`, `delta_m3`, `period_m3`, `daily_average_liters` |
+| **Consommation d’eau élevée**        | La moyenne quotidienne dépasse le **Seuil d’alerte quotidien** (une fois par franchissement).             | `daily_average_liters`, `threshold_liters`                  |
+
+Les deux déclencheurs peuvent être filtrés sur le compteur. Réglez le seuil dans la section **Alertes et rafraîchissement** de la configuration ; `0` désactive l’alerte. Exemple : envoyez-vous le message « Eau : {{triggerEvent.data.daily_average_liters}} L/jour, fuite possible ! ».
+
+### Action
+
+**Lire le compteur d’eau** lit la source immédiatement et renvoie `total_m3`, `period_m3`, `daily_average_liters` et `above_threshold` (vrai/faux) aux actions suivantes de la scène. Elle ne déclenche jamais elle-même de déclencheur : une scène ne peut pas boucler.
+
+## Test et dépannage
+
+Utilisez **Tester la source de données** avant d’ajouter le compteur ou après avoir modifié un point d’accès. Le résultat confirme les valeurs reconnues sans exposer le jeton. En cas d’échec, vérifiez que Gladys peut joindre le point d’accès, que le jeton est valide et que la réponse respecte le format ci-dessus. L’écran Configuration affiche l’état de connexion ; consultez enfin les journaux de l’intégration (`LOG_LEVEL=debug` pour plus de détails).
+
+La solution easyCONSO de la SWDE est distincte de l’Espace client général. Elle propose des relevés automatiques et un suivi en temps réel pour les compteurs intelligents, dans le cadre d’un service spécifique. [2]
 
 ## Références
 

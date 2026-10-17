@@ -28,12 +28,15 @@ test('normalizeConfig safely coerces and bounds numeric form values', () => {
     manual_total_m3: '42.5',
     manual_period_m3: '1.2',
     manual_period_days: '0',
+    daily_alert_liters: '350',
   });
 
   assert.equal(config.poll_frequency, 300);
   assert.equal(config.manual_total_m3, 42.5);
   assert.equal(config.manual_period_m3, 1.2);
   assert.equal(config.manual_period_days, 1);
+  assert.equal(config.daily_alert_liters, 350);
+  assert.equal(normalizeConfig({ poll_frequency: 999_999 }).poll_frequency, 86_400);
 });
 
 test('normalizeConfig rejects invalid source selections and negative readings', () => {
@@ -43,6 +46,7 @@ test('normalizeConfig rejects invalid source selections and negative readings', 
     manual_period_m3: 'not-a-number',
     manual_period_days: '-12',
     poll_frequency: 'not-a-number',
+    daily_alert_liters: '',
   });
 
   assert.equal(config.source_type, 'manual');
@@ -50,4 +54,10 @@ test('normalizeConfig rejects invalid source selections and negative readings', 
   assert.equal(config.manual_period_m3, DEFAULT_CONFIG.manual_period_m3);
   assert.equal(config.manual_period_days, DEFAULT_CONFIG.manual_period_days);
   assert.equal(config.poll_frequency, DEFAULT_CONFIG.poll_frequency);
+  assert.equal(config.daily_alert_liters, DEFAULT_CONFIG.daily_alert_liters);
+});
+
+test('the local-connection preference is true unless explicitly false', () => {
+  assert.equal(normalizeConfig().GLADYS_PREFER_LOCAL, true);
+  assert.equal(normalizeConfig({ GLADYS_PREFER_LOCAL: false }).GLADYS_PREFER_LOCAL, false);
 });

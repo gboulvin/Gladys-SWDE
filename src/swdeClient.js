@@ -126,4 +126,43 @@ export async function getWaterReading(config) {
   }
 }
 
+// Hosts that never leave the local network: loopback, RFC 1918 / link-local
+// IPv4, IPv6 unique-local / link-local, and the usual LAN-only suffixes.
+const LOCAL_HOST_PATTERNS = [
+  /^localhost$/,
+  /^127\./,
+  /^10\./,
+  /^192\.168\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^169\.254\./,
+  /^\[?::1\]?$/,
+  /^\[?f[cd][0-9a-f]{2}:/,
+  /^\[?fe80:/,
+  /\.(local|lan|home|internal|home\.arpa)$/,
+];
+
+/**
+ * Channel the configured source reads through: 'local' for manual readings
+ * and LAN endpoints, 'cloud' for an Internet endpoint. Shown as the transport
+ * badge of the meter in Gladys.
+ * @param {{ source_type: string, api_url: string }} config
+ * @returns {'local' | 'cloud'}
+ */
+export function sourceTransport(config) {
+  if (config.source_type !== 'api') {
+    return 'local';
+  }
+  let hostname;
+  try {
+    hostname = new URL(config.api_url).hostname.toLowerCase();
+  } catch {
+    return 'cloud';
+  }
+  // A single-label name (`nas`, `gateway`) only resolves on the LAN.
+  if (!hostname.includes('.') && !hostname.includes(':')) {
+    return 'local';
+  }
+  return LOCAL_HOST_PATTERNS.some((pattern) => pattern.test(hostname)) ? 'local' : 'cloud';
+}
+
 export { normalizeReading, validateApiUrl };

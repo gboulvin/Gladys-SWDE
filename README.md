@@ -1,6 +1,6 @@
 # Gladys SWDE — consommation d’eau
 
-**Gladys SWDE** est une intégration externe pour [Gladys Assistant](https://gladysassistant.com) qui publie trois indicateurs historisés d’un compteur d’eau : l’index en m³, la consommation de la période et la moyenne quotidienne en litres. Le projet est fondé sur le [template JavaScript officiel](https://github.com/GladysAssistant/integration-template-js) et utilise [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js).
+**Gladys SWDE** est une intégration externe pour [Gladys Assistant](https://gladysassistant.com) qui publie trois indicateurs historisés d’un compteur d’eau : l’index en m³, la consommation de la période et la moyenne quotidienne en litres. Elle fournit aussi un widget de tableau de bord, deux déclencheurs et une action de scène, et indique si la donnée arrive en local ou depuis le cloud. Elle est traduite en anglais, français, allemand et espagnol. Le projet est fondé sur le [template JavaScript officiel](https://github.com/GladysAssistant/integration-template-js) et utilise [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js).
 
 > L’Espace client SWDE donne accès à l’historique des consommations après connexion, mais aucune API publique d’automatisation n’est documentée. L’intégration ne demande donc jamais de mot de passe SWDE et n’automatise pas le portail client. [1]
 
@@ -19,6 +19,14 @@ L’intégration publie un seul appareil **Compteur SWDE**, présentant trois ca
 | Consommation de la période | m³     | `period_m3` ou relevé manuel     |
 | Moyenne quotidienne        | L/jour | `period_m3 × 1000 / period_days` |
 
+| Fonction Gladys                               | Clé                 | Rôle                                                                     |
+| --------------------------------------------- | ------------------- | ------------------------------------------------------------------------ |
+| Widget **Consommation d’eau SWDE**            | `water_consumption` | Tuiles en direct, graphique de la moyenne, état de la source, actualiser |
+| Déclencheur **Nouveau relevé du compteur**    | `new_reading`       | L’index a changé (variable `delta_m3` : volume consommé depuis)          |
+| Déclencheur **Consommation d’eau élevée**     | `high_consumption`  | Moyenne quotidienne au-dessus du seuil `daily_alert_liters`              |
+| Action de scène **Lire le compteur d’eau**    | `refresh_reading`   | Lecture immédiate, renvoie index, période, moyenne et dépassement        |
+| Transports `local` / `cloud` (badge appareil) | —                   | Local : manuel ou réseau privé ; cloud : point d’accès Internet          |
+
 Le client JSON accepte une réponse directe ou enveloppée dans `data` et reconnaît notamment les variantes `totalM3`, `index_m3`, `periodM3` et `consumption_m3`. Les nombres doivent être positifs ou nuls ; il faut fournir au moins l’index ou la consommation de période.
 
 ```json
@@ -30,7 +38,7 @@ Le client JSON accepte une réponse directe ou enveloppée dans `data` et reconn
 }
 ```
 
-La documentation utilisateur détaillée est disponible en [français](./docs/fr.md) et en [anglais](./docs/en.md).
+La documentation utilisateur détaillée est disponible en [français](./docs/fr.md), en [anglais](./docs/en.md), en [allemand](./docs/de.md) et en [espagnol](./docs/es.md). Les changements sont listés dans le [CHANGELOG](./CHANGELOG.md), la politique de sécurité dans [SECURITY.md](./SECURITY.md) et les règles du projet dans [CLAUDE.md](./CLAUDE.md).
 
 ## Développement local
 
@@ -53,17 +61,17 @@ LOG_LEVEL=debug \
 npm start
 ```
 
-Les tests couvrent la normalisation des paramètres, les relevés manuels, l’authentification Bearer pour une source JSON, la validation de réponses et la publication des trois états Gladys.
+Les tests tournent contre le faux Gladys du SDK, qui refuse les charges utiles refusées par Gladys. Ils couvrent la normalisation des paramètres, les relevés manuels, l’authentification Bearer pour une source JSON, la validation des réponses, la publication des états, le badge local/cloud, les déclencheurs et l’action de scène, le widget et la cohérence du manifeste (traductions comprises).
 
 ## Publication dans le catalogue Gladys
 
-Le manifeste requiert Gladys `>=4.86.0` et déclare la catégorie `environment`. Avant une première publication, ajoutez le sujet GitHub `gladys-assistant-integration`, vérifiez l’image de couverture et exécutez le validateur du catalogue.
+Le manifeste requiert Gladys `>=5.1.0` (widgets et scènes), déclare la catégorie `environment` et les transports `local` et `cloud`. Avant une première publication, ajoutez le sujet GitHub `gladys-assistant-integration`, vérifiez l’image de couverture et exécutez le validateur du catalogue.
 
 ```bash
 npx github:GladysAssistant/integration-store .
 ```
 
-Le workflow **Release** prépare automatiquement une version depuis l’onglet **Actions** : il synchronise les numéros de version, crée le tag et publie une image multi-architecture sur GitHub Container Registry. La valeur `docker_image` du manifeste doit rester cohérente avec la version publiée.
+Le workflow **Release** prépare automatiquement une version depuis l’onglet **Actions** : il synchronise les numéros de version, déplace la section `[Unreleased]` du CHANGELOG, crée le tag, publie une image multi-architecture sur GitHub Container Registry et une GitHub Release. La valeur `docker_image` du manifeste doit rester cohérente avec la version publiée.
 
 ## Limites connues
 

@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { normalizeConfig } from '../src/config.js';
-import { getWaterReading, normalizeReading, validateApiUrl } from '../src/swdeClient.js';
+import {
+  getWaterReading,
+  normalizeReading,
+  sourceTransport,
+  validateApiUrl,
+} from '../src/swdeClient.js';
 
 test('manual source returns normalized meter values', async () => {
   const reading = await getWaterReading(
@@ -75,4 +80,24 @@ test('only HTTP(S) URLs without embedded credentials are accepted', () => {
     () => validateApiUrl('https://user:pass@example.test/api'),
     /must not contain credentials/,
   );
+});
+
+test('sourceTransport tells LAN endpoints from Internet ones', () => {
+  const api = (url) => normalizeConfig({ source_type: 'api', api_url: url });
+  assert.equal(sourceTransport(normalizeConfig()), 'local');
+  for (const url of [
+    'http://localhost:8080/water',
+    'http://127.0.0.1/water',
+    'http://10.0.0.5/water',
+    'http://172.20.1.2/water',
+    'http://192.168.1.10/water',
+    'http://nas/water',
+    'http://gateway.local/water',
+    'http://[fd12:3456::1]/water',
+  ]) {
+    assert.equal(sourceTransport(api(url)), 'local', url);
+  }
+  for (const url of ['https://api.example.org/water', 'https://172.32.0.1/water']) {
+    assert.equal(sourceTransport(api(url)), 'cloud', url);
+  }
 });

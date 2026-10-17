@@ -3,58 +3,106 @@
   "type": "device",
   "name": "SWDE Water Consumption",
   "description": {
-    "en": "Monitor SWDE water-meter readings and consumption in Gladys from manual readings or an authorised JSON data source.",
-    "fr": "Suivez les relevés de compteur et la consommation d’eau SWDE dans Gladys, par saisie manuelle ou depuis une source JSON autorisée."
+    "en": "Track SWDE water-meter readings, daily consumption and leak alerts in Gladys.",
+    "fr": "Suivez l’index, la consommation et les alertes de votre compteur d’eau SWDE.",
+    "de": "SWDE-Wasserzählerstand, Tagesverbrauch und Verbrauchsalarme in Gladys verfolgen.",
+    "es": "Siga el índice, el consumo diario y las alertas de su contador de agua SWDE."
   },
   "version": "0.1.0",
   "docker_image": "ghcr.io/gboulvin/gladys-swde:0.1.0",
-  "gladys_version": ">=4.86.0",
+  "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-SWDE/main/cover.jpg",
   "categories": ["environment"],
+  "transports": ["local", "cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "SWDE consumption data", "fr": "Données de consommation SWDE" },
+      "label": {
+        "en": "SWDE consumption data",
+        "fr": "Données de consommation SWDE",
+        "de": "SWDE-Verbrauchsdaten",
+        "es": "Datos de consumo SWDE"
+      },
       "description": {
-        "en": "The official SWDE customer portal provides consumption history after sign-in but does not document a public API. This integration never receives your SWDE password: enter readings manually or use an authorised JSON endpoint.",
-        "fr": "Le portail client officiel SWDE donne accès à l’historique après connexion, mais ne documente pas d’API publique. Cette intégration ne reçoit jamais votre mot de passe SWDE : encodez vos relevés manuellement ou utilisez un point d’accès JSON autorisé."
+        "en": "The official SWDE customer portal provides consumption history after sign-in but does not document a public API. This integration never receives your SWDE password: enter readings manually or use an authorised JSON endpoint (local or cloud).",
+        "fr": "Le portail client officiel SWDE donne accès à l’historique après connexion, mais ne documente pas d’API publique. Cette intégration ne reçoit jamais votre mot de passe SWDE : encodez vos relevés manuellement ou utilisez un point d’accès JSON autorisé (local ou cloud).",
+        "de": "Das offizielle SWDE-Kundenportal zeigt den Verbrauchsverlauf nach der Anmeldung, dokumentiert aber keine öffentliche API. Diese Integration erhält nie Ihr SWDE-Passwort: Geben Sie Zählerstände manuell ein oder nutzen Sie einen autorisierten JSON-Endpunkt (lokal oder Cloud).",
+        "es": "El portal oficial de clientes de SWDE muestra el historial de consumo tras iniciar sesión, pero no documenta ninguna API pública. Esta integración nunca recibe su contraseña SWDE: introduzca las lecturas manualmente o use un punto de acceso JSON autorizado (local o en la nube)."
       },
       "links": [
         {
           "url": "https://www.swde.be/fr/voir-mon-historique-de-consommation",
-          "label": { "en": "SWDE consumption history", "fr": "Historique de consommation SWDE" }
+          "label": {
+            "en": "SWDE consumption history",
+            "fr": "Historique de consommation SWDE",
+            "de": "SWDE-Verbrauchsverlauf",
+            "es": "Historial de consumo SWDE"
+          }
         },
         {
-          "url": "https://github.com/gboulvin/Gladys-SWDE/blob/main/docs/fr.md",
-          "label": { "en": "Integration documentation", "fr": "Documentation de l’intégration" }
+          "url": "https://github.com/gboulvin/Gladys-SWDE/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l’intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
         }
       ]
     },
     {
       "key": "source_type",
       "type": "select",
-      "label": { "en": "Data source", "fr": "Source de données" },
+      "label": {
+        "en": "Data source",
+        "fr": "Source de données",
+        "de": "Datenquelle",
+        "es": "Fuente de datos"
+      },
       "required": true,
       "default": "manual",
       "options": [
         {
           "value": "manual",
-          "label": { "en": "Manual meter readings", "fr": "Relevés manuels du compteur" }
+          "label": {
+            "en": "Manual meter readings",
+            "fr": "Relevés manuels du compteur",
+            "de": "Manuelle Zählerablesung",
+            "es": "Lecturas manuales del contador"
+          }
         },
         {
           "value": "api",
-          "label": { "en": "Authorised JSON endpoint", "fr": "Point d’accès JSON autorisé" }
+          "label": {
+            "en": "Authorised JSON endpoint",
+            "fr": "Point d’accès JSON autorisé",
+            "de": "Autorisierter JSON-Endpunkt",
+            "es": "Punto de acceso JSON autorizado"
+          }
         }
       ]
     },
     {
       "key": "meter_id",
       "type": "string",
-      "label": { "en": "Meter identifier", "fr": "Identifiant du compteur" },
+      "label": {
+        "en": "Meter identifier",
+        "fr": "Identifiant du compteur",
+        "de": "Zählerkennung",
+        "es": "Identificador del contador"
+      },
       "description": {
-        "en": "A stable local identifier, for example the last digits of the meter serial number. Do not enter a customer number.",
-        "fr": "Un identifiant local stable, par exemple les derniers chiffres du numéro de série du compteur. N’encodez pas de numéro de client."
+        "en": "A stable local identifier, for example the last digits of the meter serial number. Do not enter a customer number. Changing it creates a new device.",
+        "fr": "Un identifiant local stable, par exemple les derniers chiffres du numéro de série du compteur. N’encodez pas de numéro de client. Le modifier crée un nouvel appareil.",
+        "de": "Eine stabile lokale Kennung, z. B. die letzten Ziffern der Zählernummer. Geben Sie keine Kundennummer ein. Eine Änderung erzeugt ein neues Gerät.",
+        "es": "Un identificador local estable, por ejemplo los últimos dígitos del número de serie del contador. No introduzca un número de cliente. Cambiarlo crea un dispositivo nuevo."
+      },
+      "placeholder": {
+        "en": "e.g. 4821",
+        "fr": "ex. 4821",
+        "de": "z. B. 4821",
+        "es": "p. ej. 4821"
       },
       "required": true,
       "default": "principal"
@@ -62,49 +110,91 @@
     {
       "key": "meter_label",
       "type": "string",
-      "label": { "en": "Meter name", "fr": "Nom du compteur" },
+      "label": {
+        "en": "Meter name",
+        "fr": "Nom du compteur",
+        "de": "Zählername",
+        "es": "Nombre del contador"
+      },
       "required": true,
       "default": "Compteur SWDE"
     },
     {
       "key": "api_section",
       "type": "section",
-      "label": { "en": "Authorised JSON endpoint", "fr": "Point d’accès JSON autorisé" },
+      "label": {
+        "en": "Authorised JSON endpoint",
+        "fr": "Point d’accès JSON autorisé",
+        "de": "Autorisierter JSON-Endpunkt",
+        "es": "Punto de acceso JSON autorizado"
+      },
       "description": {
-        "en": "Complete these fields only when the API source is selected. The endpoint must return a JSON object with total_m3 and/or period_m3; period_days is optional.",
-        "fr": "Complétez ces champs uniquement si la source API est sélectionnée. Le point d’accès doit renvoyer un objet JSON avec total_m3 et/ou period_m3 ; period_days est facultatif."
+        "en": "Complete these fields only when the API source is selected. The endpoint must return a JSON object with total_m3 and/or period_m3; period_days is optional. A LAN address is shown as a local connection, an Internet address as a cloud one.",
+        "fr": "Complétez ces champs uniquement si la source API est sélectionnée. Le point d’accès doit renvoyer un objet JSON avec total_m3 et/ou period_m3 ; period_days est facultatif. Une adresse du réseau local est affichée comme connexion locale, une adresse Internet comme connexion cloud.",
+        "de": "Füllen Sie diese Felder nur aus, wenn die API-Quelle gewählt ist. Der Endpunkt muss ein JSON-Objekt mit total_m3 und/oder period_m3 liefern; period_days ist optional. Eine LAN-Adresse wird als lokale, eine Internetadresse als Cloud-Verbindung angezeigt.",
+        "es": "Rellene estos campos solo si ha elegido la fuente API. El punto de acceso debe devolver un objeto JSON con total_m3 y/o period_m3; period_days es opcional. Una dirección de la red local se muestra como conexión local y una de Internet como conexión en la nube."
       }
     },
     {
       "key": "api_url",
       "type": "string",
-      "label": { "en": "JSON endpoint URL", "fr": "URL du point d’accès JSON" },
+      "label": {
+        "en": "JSON endpoint URL",
+        "fr": "URL du point d’accès JSON",
+        "de": "URL des JSON-Endpunkts",
+        "es": "URL del punto de acceso JSON"
+      },
+      "placeholder": {
+        "en": "e.g. https://example.org/water.json",
+        "fr": "ex. https://example.org/water.json",
+        "de": "z. B. https://example.org/water.json",
+        "es": "p. ej. https://example.org/water.json"
+      },
       "required": false,
       "default": ""
     },
     {
       "key": "api_token",
       "type": "secret",
-      "label": { "en": "API bearer token", "fr": "Jeton d’accès API" },
+      "label": {
+        "en": "API bearer token",
+        "fr": "Jeton d’accès API",
+        "de": "API-Bearer-Token",
+        "es": "Token Bearer de la API"
+      },
       "description": {
         "en": "Optional. It is stored in Gladys as a protected secret and sent as a Bearer token.",
-        "fr": "Facultatif. Il est stocké dans Gladys comme secret protégé et envoyé comme jeton Bearer."
+        "fr": "Facultatif. Il est stocké dans Gladys comme secret protégé et envoyé comme jeton Bearer.",
+        "de": "Optional. Wird in Gladys als geschütztes Geheimnis gespeichert und als Bearer-Token gesendet.",
+        "es": "Opcional. Se guarda en Gladys como secreto protegido y se envía como token Bearer."
       },
       "required": false
     },
     {
       "key": "manual_section",
       "type": "section",
-      "label": { "en": "Manual readings", "fr": "Relevés manuels" },
+      "label": {
+        "en": "Manual readings",
+        "fr": "Relevés manuels",
+        "de": "Manuelle Ablesungen",
+        "es": "Lecturas manuales"
+      },
       "description": {
         "en": "Use the values from your meter or SWDE history. Save after each new reading to add it to the Gladys dashboard history.",
-        "fr": "Utilisez les valeurs de votre compteur ou de l’historique SWDE. Enregistrez après chaque nouveau relevé pour l’ajouter à l’historique du tableau de bord Gladys."
+        "fr": "Utilisez les valeurs de votre compteur ou de l’historique SWDE. Enregistrez après chaque nouveau relevé pour l’ajouter à l’historique du tableau de bord Gladys.",
+        "de": "Verwenden Sie die Werte Ihres Zählers oder des SWDE-Verlaufs. Speichern Sie nach jeder neuen Ablesung, um sie dem Gladys-Verlauf hinzuzufügen.",
+        "es": "Use los valores de su contador o del historial SWDE. Guarde tras cada nueva lectura para añadirla al historial del panel de Gladys."
       }
     },
     {
       "key": "manual_total_m3",
       "type": "number",
-      "label": { "en": "Meter index (m³)", "fr": "Index du compteur (m³)" },
+      "label": {
+        "en": "Meter index (m³)",
+        "fr": "Index du compteur (m³)",
+        "de": "Zählerstand (m³)",
+        "es": "Índice del contador (m³)"
+      },
       "required": false,
       "default": 0,
       "min": 0
@@ -112,7 +202,12 @@
     {
       "key": "manual_period_m3",
       "type": "number",
-      "label": { "en": "Consumption for the period (m³)", "fr": "Consommation de la période (m³)" },
+      "label": {
+        "en": "Consumption for the period (m³)",
+        "fr": "Consommation de la période (m³)",
+        "de": "Verbrauch im Zeitraum (m³)",
+        "es": "Consumo del periodo (m³)"
+      },
       "required": false,
       "default": 0,
       "min": 0
@@ -120,18 +215,72 @@
     {
       "key": "manual_period_days",
       "type": "number",
-      "label": { "en": "Period length (days)", "fr": "Durée de la période (jours)" },
+      "label": {
+        "en": "Period length (days)",
+        "fr": "Durée de la période (jours)",
+        "de": "Dauer des Zeitraums (Tage)",
+        "es": "Duración del periodo (días)"
+      },
       "required": false,
       "default": 30,
       "min": 1
     },
     {
+      "key": "alert_section",
+      "type": "section",
+      "label": {
+        "en": "Alerts and refresh",
+        "fr": "Alertes et rafraîchissement",
+        "de": "Alarme und Aktualisierung",
+        "es": "Alertas y actualización"
+      },
+      "description": {
+        "en": "The “High water consumption” scene trigger fires when the daily average goes above the threshold. Use it to detect a leak or a tap left open.",
+        "fr": "Le déclencheur de scène « Consommation d’eau élevée » se déclenche quand la moyenne quotidienne dépasse le seuil. Utilisez-le pour détecter une fuite ou un robinet resté ouvert.",
+        "de": "Der Szenenauslöser „Hoher Wasserverbrauch“ wird ausgelöst, wenn das Tagesmittel den Schwellenwert übersteigt. Nutzen Sie ihn, um ein Leck oder einen offenen Hahn zu erkennen.",
+        "es": "El disparador de escena «Consumo de agua elevado» se activa cuando la media diaria supera el umbral. Úselo para detectar una fuga o un grifo abierto."
+      }
+    },
+    {
+      "key": "daily_alert_liters",
+      "type": "number",
+      "label": {
+        "en": "Daily alert threshold (L/day)",
+        "fr": "Seuil d’alerte quotidien (L/jour)",
+        "de": "Tagesalarm-Schwelle (L/Tag)",
+        "es": "Umbral de alerta diario (L/día)"
+      },
+      "description": {
+        "en": "0 disables the alert.",
+        "fr": "0 désactive l’alerte.",
+        "de": "0 deaktiviert den Alarm.",
+        "es": "0 desactiva la alerta."
+      },
+      "placeholder": {
+        "en": "e.g. 400",
+        "fr": "ex. 400",
+        "de": "z. B. 400",
+        "es": "p. ej. 400"
+      },
+      "required": false,
+      "default": 0,
+      "min": 0,
+      "max": 100000
+    },
+    {
       "key": "poll_frequency",
       "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
       "description": {
-        "en": "Used only for the API source. A moderate interval limits unnecessary requests and state history.",
-        "fr": "Utilisé uniquement pour la source API. Un intervalle modéré limite les requêtes et l’historique d’états inutiles."
+        "en": "How often the data source is read, in seconds (5 minutes to 24 hours). A moderate interval limits unnecessary requests.",
+        "fr": "Fréquence de lecture de la source, en secondes (5 minutes à 24 heures). Un intervalle modéré limite les requêtes inutiles.",
+        "de": "Wie oft die Datenquelle gelesen wird, in Sekunden (5 Minuten bis 24 Stunden). Ein moderates Intervall vermeidet unnötige Anfragen.",
+        "es": "Frecuencia de lectura de la fuente, en segundos (de 5 minutos a 24 horas). Un intervalo moderado evita peticiones innecesarias."
       },
       "required": false,
       "default": 3600,
@@ -142,8 +291,257 @@
   "actions": [
     {
       "key": "test_data_source",
-      "label": { "en": "Test the data source", "fr": "Tester la source de données" },
+      "label": {
+        "en": "Test the data source",
+        "fr": "Tester la source de données",
+        "de": "Datenquelle testen",
+        "es": "Probar la fuente de datos"
+      },
       "timeout_seconds": 30
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "new_reading",
+      "label": {
+        "en": "New water-meter reading",
+        "fr": "Nouveau relevé du compteur d’eau",
+        "de": "Neuer Wasserzählerstand",
+        "es": "Nueva lectura del contador de agua"
+      },
+      "description": {
+        "en": "The SWDE meter index changed since the previous read.",
+        "fr": "L’index du compteur SWDE a changé depuis la lecture précédente.",
+        "de": "Der SWDE-Zählerstand hat sich seit dem letzten Abruf geändert.",
+        "es": "El índice del contador SWDE ha cambiado desde la lectura anterior."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Water meter",
+            "fr": "Compteur d’eau",
+            "de": "Wasserzähler",
+            "es": "Contador de agua"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "total_m3",
+          "type": "number",
+          "label": {
+            "en": "Meter index (m³)",
+            "fr": "Index du compteur (m³)",
+            "de": "Zählerstand (m³)",
+            "es": "Índice del contador (m³)"
+          }
+        },
+        {
+          "key": "delta_m3",
+          "type": "number",
+          "label": {
+            "en": "Consumed since last reading (m³)",
+            "fr": "Consommé depuis le relevé précédent (m³)",
+            "de": "Verbrauch seit letzter Ablesung (m³)",
+            "es": "Consumido desde la lectura anterior (m³)"
+          }
+        },
+        {
+          "key": "period_m3",
+          "type": "number",
+          "label": {
+            "en": "Period consumption (m³)",
+            "fr": "Consommation de la période (m³)",
+            "de": "Verbrauch im Zeitraum (m³)",
+            "es": "Consumo del periodo (m³)"
+          }
+        },
+        {
+          "key": "daily_average_liters",
+          "type": "number",
+          "label": {
+            "en": "Daily average (L)",
+            "fr": "Moyenne quotidienne (L)",
+            "de": "Tagesmittel (L)",
+            "es": "Media diaria (L)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "high_consumption",
+      "label": {
+        "en": "High water consumption",
+        "fr": "Consommation d’eau élevée",
+        "de": "Hoher Wasserverbrauch",
+        "es": "Consumo de agua elevado"
+      },
+      "description": {
+        "en": "The daily average went above the alert threshold set in the configuration.",
+        "fr": "La moyenne quotidienne a dépassé le seuil d’alerte défini dans la configuration.",
+        "de": "Das Tagesmittel hat die in der Konfiguration festgelegte Alarmschwelle überschritten.",
+        "es": "La media diaria ha superado el umbral de alerta definido en la configuración."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Water meter",
+            "fr": "Compteur d’eau",
+            "de": "Wasserzähler",
+            "es": "Contador de agua"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "daily_average_liters",
+          "type": "number",
+          "label": {
+            "en": "Daily average (L)",
+            "fr": "Moyenne quotidienne (L)",
+            "de": "Tagesmittel (L)",
+            "es": "Media diaria (L)"
+          }
+        },
+        {
+          "key": "threshold_liters",
+          "type": "number",
+          "label": {
+            "en": "Alert threshold (L)",
+            "fr": "Seuil d’alerte (L)",
+            "de": "Alarmschwelle (L)",
+            "es": "Umbral de alerta (L)"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "refresh_reading",
+      "label": {
+        "en": "Read the water meter",
+        "fr": "Lire le compteur d’eau",
+        "de": "Wasserzähler lesen",
+        "es": "Leer el contador de agua"
+      },
+      "description": {
+        "en": "Read the data source now and return the latest values.",
+        "fr": "Lit la source de données maintenant et renvoie les dernières valeurs.",
+        "de": "Liest die Datenquelle sofort und liefert die neuesten Werte.",
+        "es": "Lee ahora la fuente de datos y devuelve los últimos valores."
+      },
+      "timeout_seconds": 30,
+      "outputs": [
+        {
+          "key": "total_m3",
+          "type": "number",
+          "label": {
+            "en": "Meter index (m³)",
+            "fr": "Index du compteur (m³)",
+            "de": "Zählerstand (m³)",
+            "es": "Índice del contador (m³)"
+          }
+        },
+        {
+          "key": "period_m3",
+          "type": "number",
+          "label": {
+            "en": "Period consumption (m³)",
+            "fr": "Consommation de la période (m³)",
+            "de": "Verbrauch im Zeitraum (m³)",
+            "es": "Consumo del periodo (m³)"
+          }
+        },
+        {
+          "key": "daily_average_liters",
+          "type": "number",
+          "label": {
+            "en": "Daily average (L)",
+            "fr": "Moyenne quotidienne (L)",
+            "de": "Tagesmittel (L)",
+            "es": "Media diaria (L)"
+          }
+        },
+        {
+          "key": "above_threshold",
+          "type": "boolean",
+          "label": {
+            "en": "Above the alert threshold",
+            "fr": "Au-dessus du seuil d’alerte",
+            "de": "Über der Alarmschwelle",
+            "es": "Por encima del umbral de alerta"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "water_consumption",
+      "label": {
+        "en": "SWDE water consumption",
+        "fr": "Consommation d’eau SWDE",
+        "de": "SWDE-Wasserverbrauch",
+        "es": "Consumo de agua SWDE"
+      },
+      "description": {
+        "en": "Meter index, period and daily consumption, history and data-source status.",
+        "fr": "Index, consommation de la période et quotidienne, historique et état de la source.",
+        "de": "Zählerstand, Zeitraum- und Tagesverbrauch, Verlauf und Status der Datenquelle.",
+        "es": "Índice, consumo del periodo y diario, historial y estado de la fuente de datos."
+      },
+      "icon": "droplet",
+      "action_timeout_seconds": 30,
+      "settings": [
+        {
+          "key": "period",
+          "type": "select",
+          "label": {
+            "en": "Chart period",
+            "fr": "Période du graphique",
+            "de": "Diagrammzeitraum",
+            "es": "Periodo del gráfico"
+          },
+          "required": false,
+          "default": "quarter",
+          "options": [
+            {
+              "value": "month",
+              "label": {
+                "en": "Last month",
+                "fr": "Dernier mois",
+                "de": "Letzter Monat",
+                "es": "Último mes"
+              }
+            },
+            {
+              "value": "quarter",
+              "label": {
+                "en": "Last 3 months",
+                "fr": "3 derniers mois",
+                "de": "Letzte 3 Monate",
+                "es": "Últimos 3 meses"
+              }
+            },
+            {
+              "value": "year",
+              "label": {
+                "en": "Last year",
+                "fr": "Dernière année",
+                "de": "Letztes Jahr",
+                "es": "Último año"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
