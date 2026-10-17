@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-17
+
 ### Added
 
 - SWDE water meter with three historised sensors: meter index (m³), period
@@ -46,4 +48,5 @@ the notes of the version's GitHub Release.
 - The integration can write to `/data`: the image creates the directory owned
   by the `node` user.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/commits/main
+[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gboulvin/Gladys-SWDE/releases/tag/v0.2.0
