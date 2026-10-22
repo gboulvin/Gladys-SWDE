@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-22
+
 ### Security
 
 - `brace-expansion`, pulled in by ESLint, raised to 5.0.12 against the
@@ -56,5 +58,6 @@ the notes of the version's GitHub Release.
 - The integration can write to `/data`: the image creates the directory owned
   by the `node` user.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/gboulvin/Gladys-SWDE/releases/tag/v0.2.0
