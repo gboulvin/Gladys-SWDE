@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-26
+
 ### Changed
 
 - Requires Gladys 5.3.0 or later: the manifest declares search keywords and
@@ -65,6 +67,7 @@ the notes of the version's GitHub Release.
 - The integration can write to `/data`: the image creates the directory owned
   by the `node` user.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/gboulvin/Gladys-SWDE/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/gboulvin/Gladys-SWDE/releases/tag/v0.2.0

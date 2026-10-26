@@ -1,6 +1,6 @@
 {
   "name": "gladys-swde",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "Gladys external integration for SWDE water-consumption data.",
   "type": "module",
