@@ -10,7 +10,7 @@ Cette intégration externe affiche dans Gladys l’**index du compteur**, la **c
 | Consommation de la période | m³     | Volume consommé sur la période de référence.                           |
 | Moyenne quotidienne        | L/jour | Calculée à partir de la consommation de période et du nombre de jours. |
 
-Gladys 5.1.0 ou plus récent est requis.
+Gladys 5.3.0 ou plus récent est requis.
 
 ## Installation et ajout du compteur
 

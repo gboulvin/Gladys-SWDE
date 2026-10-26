@@ -65,7 +65,7 @@ Les tests tournent contre le faux Gladys du SDK, qui refuse les charges utiles r
 
 ## Publication dans le catalogue Gladys
 
-Le manifeste requiert Gladys `>=5.1.0` (widgets et scènes), déclare la catégorie `environment` et les transports `local` et `cloud`. Avant une première publication, ajoutez le sujet GitHub `gladys-assistant-integration`, vérifiez l’image de couverture et exécutez le validateur du catalogue.
+Le manifeste requiert Gladys `>=5.3.0` (mots-clés et pays du catalogue, widgets et scènes), déclare la catégorie `environment` et les transports `local` et `cloud`. Avant une première publication, ajoutez le sujet GitHub `gladys-assistant-integration`, vérifiez l’image de couverture et exécutez le validateur du catalogue.
 
 ```bash
 npx github:GladysAssistant/integration-store .
