@@ -10,7 +10,7 @@ This external integration publishes the **meter index**, **period consumption** 
 | Period consumption | m³    | Water volume consumed during the reference period.         |
 | Daily average      | L/day | Calculated from period consumption and its number of days. |
 
-Gladys 5.1.0 or later is required.
+Gladys 5.3.0 or later is required.
 
 ## Installation and meter discovery
 

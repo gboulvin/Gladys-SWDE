@@ -10,7 +10,7 @@ Diese externe Integration veröffentlicht in Gladys den **Zählerstand**, den **
 | Verbrauch Zeitraum | m³      | Im Referenzzeitraum verbrauchtes Wasservolumen.                |
 | Tagesmittel        | L/Tag   | Berechnet aus dem Verbrauch des Zeitraums und seiner Tagezahl. |
 
-Gladys 5.1.0 oder neuer ist erforderlich.
+Gladys 5.3.0 oder neuer ist erforderlich.
 
 ## Installation und Erkennung des Zählers
 

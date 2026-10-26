@@ -10,7 +10,7 @@ Esta integración externa publica en Gladys el **índice del contador**, el **co
 | Consumo del periodo | m³     | Volumen de agua consumido en el periodo de referencia.          |
 | Media diaria        | L/día  | Calculada a partir del consumo del periodo y su número de días. |
 
-Se requiere Gladys 5.1.0 o posterior.
+Se requiere Gladys 5.3.0 o posterior.
 
 ## Instalación y detección del contador
 
